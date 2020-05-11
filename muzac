@@ -1,0 +1,33 @@
+#!/bin/bash
+
+if test $(wmctrl -l -p | grep "Audacious" 2>&1 | wc -l) -eq 1;
+
+# Get the id and toggle hidden 
+
+then
+ 
+# Unshade and bring to front
+if [ -f /tmp/.muzac.shaded ]; then
+    wmctrl -r 'Audacious' -b toggle,hidden
+    wmctrl -r 'Audacious' -b toggle,skip_taskbar
+    rm /tmp/.quake.shaded
+# Shade and send to back
+else
+    wmctrl -r 'Audacious' -b toggle,hidden
+    wmctrl -r 'Audacious' -b toggle,skip_taskbar
+    touch /tmp/.muzac.shaded
+fi
+
+
+
+else
+
+
+audacious 
+
+
+fi 
+
+
+#   End of script
+

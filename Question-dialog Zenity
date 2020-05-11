@@ -1,0 +1,9 @@
+#!/bin/bash
+
+zenity --question --text="Are you sure?"
+if [ $? = 0 ]; then
+    
+
+else
+    exit
+fi

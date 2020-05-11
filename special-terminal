@@ -1,0 +1,43 @@
+#!/bin/bash
+
+#   Check if the window is running
+
+if test $(wmctrl -l | grep "MyTerminal" 2>&1 | wc -l) -eq 1;
+
+#   Close it gracefully using wmctrl if it is running
+
+then 
+wmctrl -c MyTerminal
+
+else
+
+
+#   Build the window
+
+# Window size and placement configuration
+
+COLS=70
+ROWS=5
+XPOS=1288
+YPOS=0
+
+# args
+
+xfce4-terminal \
+ --hide-scrollbar \
+ --hide-borders \
+ --hide-toolbar \
+ --hide-menubar \
+ --title=MyTerminal \
+ --geometry=${COLS}x${ROWS}+${XPOS}+${YPOS} &
+ 
+#   Make the window always on top
+
+sleep 1
+wmctrl -r MyTerminal -b add,above
+wmctrl -r MyTerminal -b add,skip_taskbar
+
+
+fi
+
+#   End of script

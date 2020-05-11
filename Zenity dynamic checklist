@@ -1,0 +1,6 @@
+#!/bin/bash
+
+OLDIFS="$IFS" IFS=$'\n' choices=(); for name in `%F' "$@"` ; do	choices=("${choices[@]}" true "$name"); done; choices=(`zenity --list --separator="$IFS" --checklist --multiple --text="Show jobs:" --column "Run" --column "Job name" "${choices[@]}"`) IFS="$OLDIFS" echo "You selected ${#choices[@]}: "; for choice in "${choices[@]}" ; do	echo "$choice"; done; > /home/tufs/fudgepie.txt
+
+
+

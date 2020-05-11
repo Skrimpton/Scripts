@@ -1,0 +1,5 @@
+#!/bin/bash
+
+identifier=$(wmctrl -l -p | grep "Audacious" | cut -d " " -f 1)
+
+wmctrl -r $identifier -b skip_taskbar, skip_pager

@@ -1,0 +1,40 @@
+#!/bin/sh
+
+
+
+
+#        The file selection dialog supports the following options:
+
+
+
+# --filename=filename              Specifies the file or directory that is selected in the file selection dialog when the dialog is first shown.
+
+
+# --multiple                       Allows the selection of multiple filenames in the file selection dialog.
+
+
+# --directory                      Allows only selection of directories in the file selection dialog.
+
+
+# --save                           Set the file selection dialog into save mode.
+
+
+# --separator=separator            Specifies the string that is used to divide the returned list of filenames.
+
+
+
+
+
+FILE=`zenity --file-selection --multiple --title="Select a File"`
+
+case $? in
+
+
+         0) #   Select multiple files, split the string into an array, and use a for-loop on the array.
+
+                IFS='|' read -r -a array <<< "$FILE"; for element in "${array[@]}"; do echo "$element"; done; ;;
+ŋħ         1)
+                echo "No file selected.";;
+        -1)
+                echo "An unexpected error has occurred.";;
+esac

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+OUT=`grabc`; echo $OUT | xclip -sel clip

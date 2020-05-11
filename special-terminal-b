@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#   Check if the window is running
+
+if test $(wmctrl -l | grep "MyTerminal" 2>&1 | wc -l) -eq 1;
+
+#   args
+
+then
+ 
+wmctrl -r MyTerminal -b toggle,maximized_vert
+
+
+fi
+

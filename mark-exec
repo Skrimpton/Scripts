@@ -1,0 +1,9 @@
+#!/bin/bash
+
+zenity --question --text="Mark files(s) executable?"
+if [ $? = 0 ]; then chmod +x
+    
+
+else
+    exit
+fi

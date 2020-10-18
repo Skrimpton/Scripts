@@ -1,0 +1,10 @@
+Firefox
+Horizontal scroll
+
+
+To get back and forward enabled, instead of scroll left/right, change the following settings in about:config:
+
+mousewheel.default.action.override_x         2
+mousewheel.default.delta_multiplier_x       -100
+
+# Quoted from Arch wiki

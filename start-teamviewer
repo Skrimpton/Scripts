@@ -1,0 +1,21 @@
+#!/bin/bash
+OTHERSERVICE="TeamViewer"
+OTHERID=`pgrep -x $OTHERSERVICE`
+SERVICE="teamviewerd"
+if pgrep -x "$SERVICE" >/dev/null
+then
+    echo "$SERVICE is running"
+    if pgrep -x "$OTHERSERVICE" >/dev/null
+    then
+        kill "$OTHERID"
+    else
+        teamviewer
+    fi
+else
+    echo "$SERVICE stopped"
+    # start if not running
+    systemctl start teamviewerd.service
+    sleep 2 
+    teamviewer
+    
+fi

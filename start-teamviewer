@@ -1,4 +1,7 @@
 #!/bin/bash
+
+#Starts TeamViewer daemon if it's not running and TeamViewer. If deamon is running it starts or stops TeamViewer
+
 OTHERSERVICE="TeamViewer"
 OTHERID=`pgrep -x $OTHERSERVICE`
 SERVICE="teamviewerd"

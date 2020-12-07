@@ -1,0 +1,10 @@
+#!/bin/bash
+GETID=`xprop -name ANGRYsearch | grep "_NET_WM_PID(CARDINAL)" | awk '{print $3}'`
+
+
+if [ $GETID -ge 0 ];
+then
+    kill "$GETID"
+else
+    python3 /usr/share/angrysearch/angrysearch_update_database.py && python3 /usr/share/angrysearch/angrysearch.py
+fi

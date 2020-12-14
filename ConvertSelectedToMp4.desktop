@@ -1,13 +1,13 @@
 [Desktop Entry]
 Type=Service
-Icon=transform-move
+Icon=gtk-convert
 X-KDE-ServiceTypes=KonqPopupMenu/Plugin
-MimeType=all/allfiles;
+MimeType=video/*;
 Actions=moveTo;
 X-KDE-Priority=TopLevel
 #X-KDE-Submenu=
 Encoding=UTF-8
 [Desktop Action moveTo]
 Name=Convert selected to mp4
-Icon=/home/lol/.icons/convert.svg
-Exec=/home/fun/Programs/Scripts/ffmultiple %F
+Icon=gtk-convert
+Exec=/home/$USER/Programs/Scripts/ffmultiple %F

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Convert audio-codec of selected videos to aac, keep original name and container, and add "(AAC)" at end of filename. Useful for custom contextmenu.
+# Convert audio-codec of selected videos to aac (if possible), keep original name and container, and add "(AAC)" at end of filename. Useful for custom contextmenu.
 for f in "$@"
 do ffmpeg -i "${f}" -vcodec copy -acodec aac "${f%.*} (AAC).${f##*.}"
 done

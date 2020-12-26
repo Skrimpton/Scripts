@@ -1,0 +1,62 @@
+#!/bin/bash
+echo "Drag-n-drop film here, click the terminal window to refocus and press enter"
+read filmlocation
+echo "Drag-n-drop the subtitlefile you want burned into it, then click and and fucking press enter again"
+read sublocation
+
+# Remove single-quotes if applicable and set outpath to files
+
+if [ ${filmlocation:0:1} = "'" ]; then
+    filmout=${filmlocation:1}
+    filmout=${filmout%?}
+else
+    filmout=${filmlocation}
+fi
+if [ ${sublocation:0:1} = "'" ]; then
+    subout=${sublocation:1}
+    subout=${subout%\'*}
+else
+    subout=${sublocation}   
+fi
+
+# check encoding of subtitles and convert if not utf-8
+encoding=$(file -b --mime-encoding "$subout")
+if [ "$encoding" != "utf-8" ]; then
+    subtitlesUTF="${subout%.*}.utf-8.${subout##*.}"
+    echo "The subtitles are not utf-8, and are being converted"
+    iconv -f "$encoding" -t "UTF-8" "$subout" -o "$subtitlesUTF"
+    subout=$subtitlesUTF
+    echo "this is the converted file "$subout""   
+fi
+subtitletype="${subout##*.}"
+if [ "${subtitletype}" != "srt" ];
+then
+    ffmpeg -i "${subout}" "${subout%.*}.srt"
+    subout="${subout%.*}.srt"
+fi
+echo "Select video ouput format"
+select thing in mp4 mkv original
+do
+    case $thing in
+    mp4)
+    echo "you chose mp4"; format="mp4"; break;;
+    mkv)
+    echo "you chose mkv"; format="mkv"; break;;
+    original)
+    echo "You kept the original format"; format="${filmout##*.}"; break;;
+    *)
+    echo "You fucked up"; echo "Choose again";;
+    esac
+done
+
+if [ ${filmout##*.} = "mkv" ]; then
+ffmpeg -i "${filmout}" -vf subtitles="${subout}" -acodec aac "${filmout%.*} (subbed).${format}"
+
+elif [ ${filmout##*.} = "mp4" ]; then
+ffmpeg -i "${filmout}" -vf subtitles="${subout}" -acodec copy "${filmout%.*} (subbed).${format}"
+
+else
+ffmpeg -i "${filmout}" -vf subtitles="${subout}" -acodec aac "${filmout%.*} (subbed).${format}"
+
+fi
+notify-send "This is the thing:" "${filmout%.*} (subbed).${format}" -u normal -t 4500

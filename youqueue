@@ -1,0 +1,119 @@
+#!/bin/bash
+
+# This is the default download destination. 
+# Edit within " " to change, i.e. "~/Videos"
+outfolder="~/Downloads/"
+
+# Create switch for queue loop
+switch=0
+echo ""
+echo "Downloads will be put in seperate folders inside a folder named YTDL"
+echo "Default destination is ${outfolder}"; echo ""
+echo "Do you want to change download destination?"
+echo "Press enter to skip"; echo ""
+
+# Define optionslist for and create download destination choice loop 
+
+options=("Yes" "No" "Change default destination");
+
+while :
+
+do
+    echo "Select your option:"
+    i=1;
+    for opt in  "${options[@]}";
+    
+    do
+        echo "$i) $opt";
+        let i++;
+    done
+
+    read reply
+    case $reply in
+    
+    "1"|"${options[0]}")
+          outfolderswitch=1; break;;
+    
+    "2"|"${options[1]}"|"")
+          echo "Destination folder is /home/fun/Programs/Scripts"; outfolderswitch=0; break;;
+    
+    "3"|"${options[2]}")
+          outfolderswitch=2; break;;
+    
+    *)
+          echo "Invalid choice. Please choose 1 or 2";;
+    esac
+done
+
+# Read outfolderswitch to see if download destination is to be changed, and perform the needed string and var edits
+
+if [ $outfolderswitch = 1 ]; then
+    echo "Enter desired path to download destination"
+    read outfolder
+    if [ ${outfolder:0:1} = "'" ]; then
+        outfolder=${outfolder:1}
+        outfolder=${outfolder%?}
+        outfolder="${outfolder}"
+else
+        outfolder="${outfolder}"
+    fi
+fi
+if [ $outfolderswitch = 2 ]; then
+echo "type destination"
+read newoutfolder
+if [ ${newoutfolder:0:1} = "'" ]; then
+        newoutfolder=${newoutfolder:1}
+        newoutfolder=${newoutfolder%?}
+        newoutfolder="${newoutfolder}"
+fi
+if [ ${newoutfolder:0:1} = "\"" ]; then
+        newoutfolder=${newoutfolder:1}
+        newoutfolder=${newoutfolder%?}
+        newoutfolder="${newoutfolder}"
+fi
+if [ ${newoutfolder: -1} = "/" ]; then
+        newoutfolder="${newoutfolder}"
+else
+        newoutfolder="${newoutfolder}/"
+        
+fi
+sed -i "s,${outfolder},${newoutfolder},g" /home/fun/.local/bin/you
+outfolder=${newoutfolder}
+echo "Default download destination is now:"
+echo "${outfolder}"
+fi
+# Read urls and place in queue
+
+declare -a list
+while [ $switch = 0 ]; 
+do
+
+echo "Paste url and add to queue by pressing enter."
+echo "Or just press enter to start downloading"
+read url   
+
+if [ "${url}" != "" ]; then
+    list+=("$url")
+    echo ""
+    echo "This is queued:" 
+    for i in ${list[@]};
+    do    
+    echo "$i"
+    done
+    echo ""
+    
+# Go trough queue and perform string edits to set outfolder
+
+else
+    switch=1
+    for i in ${list[@]};
+    do 
+    if [ ${outfolder: -1} = "/" ]; then
+    youtube-dl -o "${outfolder}YTDL/%(title)s/%(title)s.%(ext)s" --all-subs "$i"
+    else
+    youtube-dl -o "${outfolder}/YTDL/%(title)s/%(title)s.%(ext)s" --all-subs "$i"
+    fi
+    done
+fi
+done
+

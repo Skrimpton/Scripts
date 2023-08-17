@@ -90,7 +90,7 @@ then
     then
 
         cd "$folder"
-        echo -e "\nfolder:\n$PWD\n\nNew GIF:\n${folder}/${name}.gif\n"
+        echo -e "\nFolder:\n$PWD\n\nNew GIF:\n${folder}/${name}.gif\n"
         palette="${folder}/palette.png"
         if [[ $start_time = 0 && $duration = 0 ]]
         then

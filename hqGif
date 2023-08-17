@@ -22,6 +22,8 @@ Caveats:
 # TODO use mktemp - $RANDOM and trap cleanup
 
 }
+
+
 # --- Check if there are any arguments
 
 if [[ -z $@ ]]
@@ -44,6 +46,7 @@ else
     new_folder=""
 
     scale_flags="lanczos"
+
     # --- Check if there are more arguments than just original file
 
     while [[ ${#@} > 0 ]]

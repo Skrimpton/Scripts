@@ -6,7 +6,8 @@ start_time=0
 duration=0
 fps=10
 scale=540
-
+stats_mode=diff
+# stats_mode=full
 runit=0
 
 # --- Check if there are any arguments
@@ -56,6 +57,11 @@ then
                 scale="$1"
 
             ;;
+            --stats-mode|-sm|-smode)
+                shift
+                stats_mode="$1"
+
+            ;;
             --filters|-f)
                 shift
                 filters="$1"
@@ -94,15 +100,15 @@ then
         palette="${folder}/palette.png"
         if [[ $start_time = 0 && $duration = 0 ]]
         then
-            ffmpeg -v warning -i "$originalFile" -vf "$filters,palettegen" -y $palette
+            ffmpeg -v warning -i "$originalFile" -vf "$filters,palettegen=stats_mode=$stats_mode" -y $palette
             ffmpeg -v warning -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "${folder}/${name}.gif"
         elif [[ $start_time > 0 && $duration = 0 ]]
         then
-            ffmpeg -v warning -ss $start_time -i "$originalFile" -vf "$filters,palettegen" -y $palette
+            ffmpeg -v warning -ss $start_time -i "$originalFile" -vf "$filters,palettegen=stats_mode=$stats_mode" -y $palette
             ffmpeg -v warning -ss $start_time -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "${folder}/${name}.gif"
         elif [[ $start_time > 0 && $duration > 0 ]]
         then
-            ffmpeg -v warning -ss $start_time -t $duration -i "$originalFile" -vf "$filters,palettegen" -y $palette
+            ffmpeg -v warning -ss $start_time -t $duration -i "$originalFile" -vf "$filters,palettegen=stats_mode=$stats_mode" -y $palette
             ffmpeg -v warning -ss $start_time -t $duration -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "${folder}/${name}.gif"
         fi
     fi

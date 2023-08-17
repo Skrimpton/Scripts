@@ -269,7 +269,7 @@ else
 
         make_temp_palette # create the temporary palette
 
-        palette="$TEMP"
+        palette="$TEMP" # temporary palette variable name is $TEMP
         filters="fps=$fps,scale=$scale:-1:flags=$scale_flags"
         out_file="${folder}/${name}.gif"
 

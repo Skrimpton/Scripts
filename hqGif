@@ -85,8 +85,6 @@ then
     echo "no arguments"
 
 else
-    runit=1
-
     originalFile="$1"
     name="${originalFile##*/}"
     name="${name%.*}"

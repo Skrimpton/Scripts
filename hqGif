@@ -116,21 +116,35 @@ then
         cd "$folder"
         palette="${folder}/palette.png"
         filters="fps=$fps,scale=$scale:-1:flags=lanczos"
+        out_file="${folder}/${name}.gif"
 
-        echo -e "\nFolder:\n$PWD\n\nNew GIF:\n${folder}/${name}.gif\n"
+        if [[ -f $out_file ]]
+        then
+            counter=1
+            out_new="${out_file%.*} ($counter).gif"
+            while [[ -f $out_new ]]
+            do
+                ((counter++))
+                out_new="${out_file%.*} ($counter).gif"
+            done
+            out_file="$out_new"
+        fi
+
+
+        echo -e "\nFolder:\n$PWD\n\nNew GIF:\n$out_file\n"
 
         if [[ $start_time = 0 && $duration = 0 ]]
         then
             ffmpeg -v warning -i "$originalFile" -vf "$filters,palettegen=stats_mode=$stats_mode" -y $palette
-            ffmpeg -v warning -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "${folder}/${name}.gif" && rm "$palette"
+            ffmpeg -v warning -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "$out_file" && rm "$palette"
         elif [[ $start_time > 0 && $duration = 0 ]]
         then
             ffmpeg -v warning -ss $start_time -i "$originalFile" -vf "$filters,palettegen=stats_mode=$stats_mode" -y $palette
-            ffmpeg -v warning -ss $start_time -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "${folder}/${name}.gif" && rm "$palette"
+            ffmpeg -v warning -ss $start_time -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "$out_file" && rm "$palette"
         elif [[ $start_time > 0 && $duration > 0 ]]
         then
             ffmpeg -v warning -ss $start_time -t $duration -i "$originalFile" -vf "$filters,palettegen=stats_mode=$stats_mode" -y $palette
-            ffmpeg -v warning -ss $start_time -t $duration -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "${folder}/${name}.gif" && rm "$palette"
+            ffmpeg -v warning -ss $start_time -t $duration -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "$out_file" && rm "$palette"
         fi
     fi
 fi

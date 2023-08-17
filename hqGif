@@ -51,7 +51,7 @@ then
                 fps="$1"
 
             ;;
-            --scale|-scale|-sc)
+            --scale|-scale|-sc|-size)
                 shift
                 scale="$1"
 

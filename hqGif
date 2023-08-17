@@ -267,7 +267,8 @@ else
             # [[ -f $TEMP ]] && echo "TEMP EXISTS" || echo "TEMP DOES NOT EXIST"
         }
 
-        make_temp_palette
+        make_temp_palette # create the temporary palette
+
         palette="$TEMP"
         filters="fps=$fps,scale=$scale:-1:flags=$scale_flags"
         out_file="${folder}/${name}.gif"

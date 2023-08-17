@@ -251,97 +251,91 @@ else
     then
         trap clean_up 1 2 3 15
 
-        # --- Function to create the temporary palette
-
-        make_temp_palette()
-        {
-            TEMP=$(mktemp -t $name-$$.XXXXXXXXXX.png)
-        }
-
         # --- Function to delete the temporary palette
 
         clean_up()
         {
             # [[ -f $TEMP ]] && echo "TEMP EXISTS" || echo "TEMP DOES NOT EXIST"
-            rm "$TEMP" >/dev/null 2>&1
+            rm "$palette" >/dev/null 2>&1
             # [[ -f $TEMP ]] && echo "TEMP EXISTS" || echo "TEMP DOES NOT EXIST"
         }
 
-        make_temp_palette # create the temporary palette
+        palette=$(mktemp -t $name-$$.XXXXXXXXXX.png)
 
-        palette="$TEMP" # temporary palette variable name is $TEMP
-        filters="fps=$fps,scale=$scale:-1:flags=$scale_flags"
-        out_file="${folder}/${name}.gif"
-
-        if [[ -f $out_file ]]
+        if [[ -f $palette ]]
         then
-            counter=1
-            out_new="${out_file%.*} ($counter).gif"
-            while [[ -f $out_new ]]
-            do
-                ((counter++))
+            filters="fps=$fps,scale=$scale:-1:flags=$scale_flags"
+            out_file="${folder}/${name}.gif"
+
+            if [[ -f $out_file ]]
+            then
+                counter=1
                 out_new="${out_file%.*} ($counter).gif"
-            done
-            out_file="$out_new"
-        fi
+                while [[ -f $out_new ]]
+                do
+                    ((counter++))
+                    out_new="${out_file%.*} ($counter).gif"
+                done
+                out_file="$out_new"
+            fi
 
-        echo -e "\nNew GIF:\n$out_file\n"
+            echo -e "\nNew GIF:\n$out_file\n"
 
-        if [[ $start_time = 0 && $duration = 0 ]]
-        then
-            ffmpeg \
-                -v warning \
-                -i "$originalFile" \
-                -vf "$filters,palettegen=stats_mode=$stats_mode" \
-                -y $palette
+            if [[ $start_time = 0 && $duration = 0 ]]
+            then
+                ffmpeg \
+                    -v warning \
+                    -i "$originalFile" \
+                    -vf "$filters,palettegen=stats_mode=$stats_mode" \
+                    -y $palette
 
-            ffmpeg \
-                -v warning \
-                -i "$originalFile" \
-                -i $palette \
-                -lavfi "$filters [x]; [x][1:v] paletteuse" \
-                -loop $loops \
-                -y "$out_file"
+                ffmpeg \
+                    -v warning \
+                    -i "$originalFile" \
+                    -i $palette \
+                    -lavfi "$filters [x]; [x][1:v] paletteuse" \
+                    -loop $loops \
+                    -y "$out_file"
 
-        elif [[ $start_time > 0 && $duration = 0 ]]
-        then
-            ffmpeg \
-                -v warning \
-                -ss $start_time \
-                -i "$originalFile" \
-                -vf "$filters,palettegen=stats_mode=$stats_mode" \
-                -y $palette
+            elif [[ $start_time > 0 && $duration = 0 ]]
+            then
+                ffmpeg \
+                    -v warning \
+                    -ss $start_time \
+                    -i "$originalFile" \
+                    -vf "$filters,palettegen=stats_mode=$stats_mode" \
+                    -y $palette
 
-            ffmpeg \
-                -v warning \
-                -ss $start_time \
-                -i "$originalFile" \
-                -i $palette \
-                -lavfi "$filters [x]; [x][1:v] paletteuse" \
-                -loop $loops \
-                -y "$out_file"
+                ffmpeg \
+                    -v warning \
+                    -ss $start_time \
+                    -i "$originalFile" \
+                    -i $palette \
+                    -lavfi "$filters [x]; [x][1:v] paletteuse" \
+                    -loop $loops \
+                    -y "$out_file"
 
-        elif [[ $start_time > 0 && $duration > 0 ]]
-        then
-            ffmpeg \
-                -v warning \
-                -ss $start_time \
-                -t $duration \
-                -i "$originalFile" \
-                -vf "$filters,palettegen=stats_mode=$stats_mode" \
-                -y $palette
+            elif [[ $start_time > 0 && $duration > 0 ]]
+            then
+                ffmpeg \
+                    -v warning \
+                    -ss $start_time \
+                    -t $duration \
+                    -i "$originalFile" \
+                    -vf "$filters,palettegen=stats_mode=$stats_mode" \
+                    -y $palette
 
-            ffmpeg \
-                -v warning \
-                -ss $start_time \
-                -t $duration \
-                -i "$originalFile" \
-                -i $palette \
-                -lavfi "$filters [x]; [x][1:v] paletteuse" \
-                -loop $loops \
-                -y "$out_file"
-        fi
-
+                ffmpeg \
+                    -v warning \
+                    -ss $start_time \
+                    -t $duration \
+                    -i "$originalFile" \
+                    -i $palette \
+                    -lavfi "$filters [x]; [x][1:v] paletteuse" \
+                    -loop $loops \
+                    -y "$out_file"
+            fi
         clean_up
+        fi
     fi
 fi

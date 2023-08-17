@@ -187,23 +187,24 @@ else
         folder="${folder}"
     fi
 
-    # --- Function to create the temporary palette
-
-    make_temp_palette(){
-        TEMP=$(mktemp -t $name-$$.XXXXXXXXXX.png)
-    }
-
-    # --- Function to delete the temporary palette
-
-    clean_up() {
-
-        # [[ -f $TEMP ]] && echo "TEMP EXISTS" || echo "TEMP DOES NOT EXIST"
-        rm "$TEMP" >/dev/null 2>&1
-        # [[ -f $TEMP ]] && echo "TEMP EXISTS" || echo "TEMP DOES NOT EXIST"
-    }
-
     if [[ -w "${folder}" ]]
     then
+
+        # --- Function to create the temporary palette
+    
+        make_temp_palette(){
+            TEMP=$(mktemp -t $name-$$.XXXXXXXXXX.png)
+        }
+    
+        # --- Function to delete the temporary palette
+    
+        clean_up() {
+    
+            # [[ -f $TEMP ]] && echo "TEMP EXISTS" || echo "TEMP DOES NOT EXIST"
+            rm "$TEMP" >/dev/null 2>&1
+            # [[ -f $TEMP ]] && echo "TEMP EXISTS" || echo "TEMP DOES NOT EXIST"
+        }
+
         cd "$folder"
         make_temp_palette
         palette="$TEMP"

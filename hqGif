@@ -2,40 +2,47 @@
 
 ### Based on this https://blog.pkh.me/p/21-high-quality-gif-with-ffmpeg.html
 
-start_time=0
-duration=0
-fps=10
-scale=540
-stats_mode=diff
-# stats_mode=full
-runit=0
 
+printHelp()
+{
+echo -e """
+Usage example:
+
+    hqGif <videofile.ext> -scale 520 -scf bicubic -dir ~/Pictures -name lol
+
+Result:
+    ~Pictures/lol/lol.gif
+      - a 520px scaled gif named \"lol.gif\" from <videofile.ext> using bicubic scaling (lancoz by default)
+
+Caveats:
+    Files are put in folders to avoid name clashing/issues during creation and removal of files - i.e. the automatically removed palette.png
+
+    I am currently not using /tmp/palette.png solution to avoid clashing if serializing the command
+"""
+# TODO use mktemp - $RANDOM and trap cleanup
+
+}
 # --- Check if there are any arguments
 
 if [[ -z $@ ]]
 then
     echo "no arguments"
 
-elif [[ ${#@} > 1 || ${#@} = 1 ]]
-then
-    runit=1
-fi
-
-if [[ $runit = 1 ]]
-then
+else
     originalFile="$1"
     name="${originalFile##*/}"
     name="${name%.*}"
-fi
 
+    start_time=0
+    duration=0
+    fps=10
+    scale=540
+    stats_mode=diff
+    # stats_mode=full
+    new_folder=""
+    # --- Check if there are more arguments than just original file
 
-new_folder=""
-# --- Check if there are more arguments than just original file
-
-if [[ ${#@} > 1 ]]
-then
-    shift
-    while [[ ${#@} > 1 ]]
+    while [[ ${#@} > 0 ]]
     do
         if [[ ${1:0:1} = "-" ]]
         then
@@ -79,6 +86,10 @@ then
                 ;;
                 esac
             ;;
+            --help|-h)
+                printHelp
+                exit 0
+            ;;
             --folder|-dir)
                 shift
                 case "$1" in
@@ -94,23 +105,21 @@ then
         fi
         shift
     done
-fi
-
-if [[ $new_folder != "" ]]
-then
-    folder="$new_folder/$name"
-else
-    folder="${originalFile%/*}"
-    folder="${folder}/$name"
-fi
 
 
-if [[ $runit = 1 ]]
-then
+    if [[ $new_folder != "" ]]
+    then
+        folder="$new_folder/$name"
+    else
+        folder="${originalFile%/*}"
+        folder="${folder}/$name"
+    fi
+
     if [[ -w "${folder%/*}" ]]
     then
         mkdir "$folder" &>/dev/null
     fi
+
     if [[ -d "${folder}" ]]
     then
         cd "$folder"

@@ -90,19 +90,19 @@ then
     then
 
         cd "$folder"
-        echo -e "folder: $PWD\nNew GIF:${folder}/${name}.gif"
+        echo -e "\nfolder:\n$PWD\n\nNew GIF:\n${folder}/${name}.gif\n"
         palette="${folder}/palette.png"
         if [[ $start_time = 0 && $duration = 0 ]]
         then
-            ffmpeg -v warning -i "$originalFile" -vf "$filters,palettegen" -y "$palette"
+            ffmpeg -v warning -i "$originalFile" -vf "$filters,palettegen" -y $palette
             ffmpeg -v warning -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "${folder}/${name}.gif"
         elif [[ $start_time > 0 && $duration = 0 ]]
         then
-            ffmpeg -v warning -ss $start_time -i "$originalFile" -vf "$filters,palettegen" -y "$palette"
+            ffmpeg -v warning -ss $start_time -i "$originalFile" -vf "$filters,palettegen" -y $palette
             ffmpeg -v warning -ss $start_time -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "${folder}/${name}.gif"
         elif [[ $start_time > 0 && $duration > 0 ]]
         then
-            ffmpeg -v warning -ss $start_time -t $duration -i "$originalFile" -vf "$filters,palettegen" -y "$palette"
+            ffmpeg -v warning -ss $start_time -t $duration -i "$originalFile" -vf "$filters,palettegen" -y $palette
             ffmpeg -v warning -ss $start_time -t $duration -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "${folder}/${name}.gif"
         fi
     fi

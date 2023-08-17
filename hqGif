@@ -5,39 +5,19 @@
 
 printHelp()
 {
-echo -e """————————————————————
+echo -e """
 Usage example:
-————————————————————
 
     hqGif <videofile.ext> -scale 520 -scf bicubic -dir ~/Pictures -name lol
 
 Result:
-    ~/Pictures/lol/lol.gif
-      - -scale 520 : makes a 520px scaled gif named \"lol.gif\"  made from <videofile.ext> 
-      - -scf bicubic : use bicubic scaling (lancoz by default)
+    ~Pictures/lol/lol.gif
+      - a 520px scaled gif named \"lol.gif\" from <videofile.ext> using bicubic scaling (lanczos by default)
 
-————————————————————
-Available arguments:
-————————————————————
-
---folder|-dir
-    Set output directory
---name|-n|-o
-    Set name of output gif
---start-time|-st|-ss
-    Set start time of videoclip to make gif from
---duration|-d|-t
-    Set duration of clip
---frames-per-second|-fps|--fps
-    Set gif fps - higher is smoother, but filesize is larger
-    default is 10 fps
-
-————————————————————
 Caveats:
-————————————————————
+    Files are put in folders to avoid name clashing/issues during creation and removal of files - i.e. the automatically removed palette.png
 
-Files are put in folders to avoid name clashing/issues during creation and removal of files - i.e. the automatically removed palette.png
-I am currently not using /tmp/palette.png solution to avoid clashing if serializing the command
+    I am currently not using /tmp/palette.png solution to avoid clashing if serializing the command
 """
 # TODO use mktemp - $RANDOM and trap cleanup
 
@@ -49,6 +29,8 @@ then
     echo "no arguments"
 
 else
+    runit=1
+
     originalFile="$1"
     name="${originalFile##*/}"
     name="${name%.*}"
@@ -60,6 +42,8 @@ else
     stats_mode=diff
     # stats_mode=full
     new_folder=""
+
+    scale_flags="lanczos"
     # --- Check if there are more arguments than just original file
 
     while [[ ${#@} > 0 ]]
@@ -86,10 +70,29 @@ else
                 scale="$1"
 
             ;;
+            --scale-flag|-scf)
+                shift
+                case "$1" in
+                la|lan|lc|lcz|lz)
+                    scale_flags="lanczos"
+                ;;
+                bi|bic)
+                    scale_flags="bicubic"
+                ;;
+                *)
+                    scale_flags="$1"
+                ;;
+                esac
+
+            ;;
             --stats-mode|-sm|-smode)
                 shift
                 stats_mode="$1"
 
+            ;;
+            --filters|-f)
+                shift
+                filters="$1"
             ;;
             --name|-n|-o)
                 shift
@@ -131,16 +134,16 @@ else
         folder="${folder}/$name"
     fi
 
+
     if [[ -w "${folder%/*}" ]]
     then
         mkdir "$folder" &>/dev/null
     fi
-
     if [[ -d "${folder}" ]]
     then
         cd "$folder"
         palette="${folder}/palette.png"
-        filters="fps=$fps,scale=$scale:-1:flags=lanczos"
+        filters="fps=$fps,scale=$scale:-1:flags=$scale_flags"
         out_file="${folder}/${name}.gif"
 
         if [[ -f $out_file ]]
@@ -172,4 +175,7 @@ else
             ffmpeg -v warning -ss $start_time -t $duration -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "$out_file" && rm "$palette"
         fi
     fi
+
 fi
+
+

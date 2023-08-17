@@ -222,7 +222,7 @@ else
             out_file="$out_new"
         fi
 
-        echo -e "\nFolder:\n$PWD\n\nNew GIF:\n$out_file\n"
+        echo -e "\nNew GIF:\n$out_file\n"
 
         if [[ $start_time = 0 && $duration = 0 ]]
         then

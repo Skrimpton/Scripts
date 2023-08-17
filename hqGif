@@ -250,14 +250,6 @@ else
     if [[ -w "${folder}" ]]
     then
         trap clean_up 1 2 3 15
-        trap die 1 2 3 15
-
-        # --- Make sure script dies - this is overkill
-
-        die()
-        {
-            exit 111
-        }
 
         # --- Function to create the temporary palette
 

@@ -32,7 +32,7 @@ Result:
 
 -scf bicubic
 
-  Use bicubic scaling (lancoz by default)
+  Use bicubic scaling (lanczos by default)
 
 
 —————————————————————————
@@ -48,7 +48,7 @@ Available argument flags:
 
 --scale_flag|-scf
     String to set scale flag
-    e.g bicub or lancoz
+    e.g bicub or lanczos
 
 --scale|-scale|-s|-sz|-sc|-size
     Set size of output gif

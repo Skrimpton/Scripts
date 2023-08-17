@@ -241,13 +241,19 @@ else
 
     if [[ $new_folder != "" ]]
     then
-        folder="$new_folder"
+        if [[ -d "$new_folder" && -w "$new_folder" ]]
+        then
+            folder="$new_folder"
+        else
+            echo -e "$new_folder\nis not a valid folder"
+            exit 1
+        fi
     else
         folder="${originalFile%/*}"
         folder="${folder}"
     fi
 
-    if [[ -w "${folder}" ]]
+    if [[ -d "${folder}" && -w "${folder}" ]]
     then
         trap clean_up 1 2 3 15
 
@@ -287,6 +293,7 @@ else
                     -v warning \
                     -i "$originalFile" \
                     -vf "$filters,palettegen=stats_mode=$stats_mode" \
+                    -update true  \
                     -y $palette
 
                 ffmpeg \
@@ -304,6 +311,7 @@ else
                     -ss $start_time \
                     -i "$originalFile" \
                     -vf "$filters,palettegen=stats_mode=$stats_mode" \
+                    -update true  \
                     -y $palette
 
                 ffmpeg \
@@ -323,6 +331,7 @@ else
                     -t $duration \
                     -i "$originalFile" \
                     -vf "$filters,palettegen=stats_mode=$stats_mode" \
+                    -update true  \
                     -y $palette
 
                 ffmpeg \

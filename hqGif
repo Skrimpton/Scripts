@@ -258,7 +258,6 @@ else
             TEMP=$(mktemp -t $name-$$.XXXXXXXXXX.png)
         }
 
-
         # --- Function to delete the temporary palette
 
         clean_up()

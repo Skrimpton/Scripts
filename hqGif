@@ -138,7 +138,19 @@ then
     exit 0
 
 else
-    originalFile="$1"
+    originalFile=""
+    for var in $@
+    do
+        if [[ -f $var ]]
+        then
+            originalFile="$var"
+        fi
+    done
+    if [[ $originalFile = "" || ! -f $originalFile ]]
+    then
+        echo "No file detected"
+        exit 1
+    fi
     name="${originalFile##*/}"
     name="${name%.*}"
 

@@ -177,7 +177,6 @@ else
             ffmpeg -v warning -ss $start_time -t $duration -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "$out_file" && rm "$palette"
         fi
     fi
-
 fi
 
 

@@ -1,0 +1,109 @@
+#!/bin/zsh
+
+### Based on this https://blog.pkh.me/p/21-high-quality-gif-with-ffmpeg.html
+
+start_time=0
+duration=0
+fps=10
+scale=540
+
+runit=0
+
+# --- Check if there are any arguments
+
+if [[ -z $@ ]]
+then
+    echo "no arguments"
+
+elif [[ ${#@} > 1 || ${#@} = 1 ]]
+then
+    runit=1
+fi
+
+if [[ $runit = 1 ]]
+then
+    originalFile="$1"
+    name="${originalFile##*/}"
+    name="${name%.*}"
+fi
+
+# --- Check if there are more arguments than just original file
+
+if [[ ${#@} > 1 ]]
+then
+    shift
+    while [[ ${#@} > 1 ]]
+    do
+        if [[ ${1:0:1} = "-" ]]
+        then
+            case "$1" in
+            --start-time|-st|-ss)
+                shift
+                start_time="$1"
+            ;;
+            --duration|-d|-t)
+                shift
+                duration="$1"
+
+            ;;
+            --frames-per-second|-fps|--fps)
+                shift
+                fps="$1"
+
+            ;;
+            --scale|-scale|-sc)
+                shift
+                scale="$1"
+
+            ;;
+            --filters|-f)
+                shift
+                filters="$1"
+            ;;
+            --name|-n|-o)
+                shift
+                case "$1" in
+                *.gif)
+                    name="${1%.*}"
+                ;;
+                *)
+                    name="$1"
+                ;;
+                esac
+            ;;
+            esac
+        fi
+        shift
+    done
+fi
+
+filters="fps=$fps,scale=$scale:-1:flags=lanczos"
+
+if [[ $runit = 1 ]]
+then
+    folder="${originalFile%.*}"
+    if [[ -w "${folder%/*}" ]]
+    then
+        mkdir "$folder" &>/dev/null
+    fi
+    if [[ -d "${folder}" ]]
+    then
+
+        cd "$folder"
+        echo -e "folder: $PWD\nNew GIF:${folder}/${name}.gif"
+        palette="${folder}/palette.png"
+        if [[ $start_time = 0 && $duration = 0 ]]
+        then
+            ffmpeg -v warning -i "$originalFile" -vf "$filters,palettegen" -y $palette
+            ffmpeg -v warning -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "${folder}/${name}.gif"
+        elif [[ $start_time > 0 && $duration = 0 ]]
+        then
+            ffmpeg -v warning -ss $start_time -i "$originalFile" -vf "$filters,palettegen" -y $palette
+            ffmpeg -v warning -ss $start_time -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "${folder}/${name}.gif"
+        elif [[ $start_time > 0 && $duration > 0 ]]
+        then
+            ffmpeg -v warning -ss $start_time -t $duration -i "$originalFile" -vf "$filters,palettegen" -y $palette
+            ffmpeg -v warning -ss $start_time -t $duration -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "${folder}/${name}.gif"
+        fi
+    fi
+fi

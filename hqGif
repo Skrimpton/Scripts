@@ -100,8 +100,8 @@ if [[ $new_folder != "" ]]
 then
     folder="$new_folder/$name"
 else
-    folder="${originalFile%.*}"
-    folder="${folder%/*}/$name"
+    folder="${originalFile%/*}"
+    folder="${folder}/$name"
 fi
 
 

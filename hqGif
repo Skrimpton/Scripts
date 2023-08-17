@@ -3,25 +3,79 @@
 ### Based on this https://blog.pkh.me/p/21-high-quality-gif-with-ffmpeg.html
 
 
+trap clean_up 1 2 3 15
+trap die 1 2 3 15
+
+# --- Make sure script dies - this is overkill
+die()
+{
+    exit 111
+}
+
 printHelp()
 {
-echo -e """
+echo -e """—————————————————————————
 Usage example:
+—————————————————————————
 
-    hqGif <videofile.ext> -scale 520 -scf bicubic -dir ~/Pictures -name lol
+  hqGif ~/Videos/<videofile.ext> -scale 520 -scf bicubic -dir ~/Pictures -name lol
 
 Result:
-    ~Pictures/lol/lol.gif
-      - a 520px scaled gif named \"lol.gif\" from <videofile.ext> using bicubic scaling (lanczos by default)
 
-Caveats:
-    Files are put in folders to avoid name clashing/issues during creation and removal of files - i.e. the automatically removed palette.png
+  ~/Pictures/lol.gif
 
-    I am currently not using /tmp/palette.png solution to avoid clashing if serializing the command
+--------------------
+
+-name
+
+  Sets output filename from original filename to given string (e.g. "lol")
+  .gif is appended automatically
+
+-dir
+
+  Sets output directory to ~/Pictures
+
+-scale 520
+
+  Makes a 520px scaled gif from ~/Videos/<videofile.ext>
+
+-scf bicubic
+
+  Use bicubic scaling (lancoz by default)
+
+
+—————————————————————————
+Available argument flags:
+—————————————————————————
+
+--folder|-dir
+    Set output directory
+
+--name|-name|-n|-o
+    Set name of output gif
+    .gif is appendeda automatically
+
+--scale_flag|-scf
+    String to set scale flag
+    e.g bicub or lancoz
+
+--scale|-scale|-s|-sz|-sc|-size
+    Set size of output gif
+    example: -s 520
+
+--start-time|-st|-ss
+    Set start time of videoclip to make gif from
+
+--duration|-d|-t
+    Set duration of clip
+
+--frames-per-second|-fps|--fps
+    Set gif fps - higher is smoother, but filesize is larger
+    default is 10 fps
 """
-# TODO use mktemp - $RANDOM and trap cleanup
 
 }
+
 
 
 # --- Check if there are any arguments
@@ -41,11 +95,10 @@ else
     duration=0
     fps=10
     scale=540
+    scale_flags="lanczos"
     stats_mode=diff
     # stats_mode=full
     new_folder=""
-
-    scale_flags="lanczos"
 
     # --- Check if there are more arguments than just original file
 
@@ -97,7 +150,7 @@ else
                 shift
                 filters="$1"
             ;;
-            --name|-n|-o)
+            --name|-name|-n|-o)
                 shift
                 case "$1" in
                 *.gif)
@@ -131,21 +184,33 @@ else
 
     if [[ $new_folder != "" ]]
     then
-        folder="$new_folder/$name"
+        folder="$new_folder"
     else
         folder="${originalFile%/*}"
-        folder="${folder}/$name"
+        folder="${folder}"
     fi
 
+    # --- Function to create the temporary palette
 
-    if [[ -w "${folder%/*}" ]]
-    then
-        mkdir "$folder" &>/dev/null
-    fi
-    if [[ -d "${folder}" ]]
+    make_temp_palette(){
+        TEMP=$(mktemp -t $name-$$.XXXXXXXXXX.png)
+    }
+
+
+    # --- Function to delete the temporary palette
+
+    clean_up() {
+
+        # [[ -f $TEMP ]] && echo "TEMP EXISTS" || echo "TEMP DOES NOT EXIST"
+        rm "$TEMP" >/dev/null 2>&1
+        # [[ -f $TEMP ]] && echo "TEMP EXISTS" || echo "TEMP DOES NOT EXIST"
+    }
+
+    if [[ -w "${folder}" ]]
     then
         cd "$folder"
-        palette="${folder}/palette.png"
+        make_temp_palette
+        palette="$TEMP"
         filters="fps=$fps,scale=$scale:-1:flags=$scale_flags"
         out_file="${folder}/${name}.gif"
 
@@ -161,22 +226,64 @@ else
             out_file="$out_new"
         fi
 
+
         echo -e "\nFolder:\n$PWD\n\nNew GIF:\n$out_file\n"
 
         if [[ $start_time = 0 && $duration = 0 ]]
         then
-            ffmpeg -v warning -i "$originalFile" -vf "$filters,palettegen=stats_mode=$stats_mode" -y $palette
-            ffmpeg -v warning -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "$out_file" && rm "$palette"
+            ffmpeg \
+                -v warning \
+                -i "$originalFile" \
+                -vf "$filters,palettegen=stats_mode=$stats_mode" \
+                -y $palette
+
+            ffmpeg \
+                -v warning \
+                -i "$originalFile" \
+                -i $palette \
+                -lavfi "$filters [x]; [x][1:v] paletteuse" \
+                -y "$out_file"
+
         elif [[ $start_time > 0 && $duration = 0 ]]
         then
-            ffmpeg -v warning -ss $start_time -i "$originalFile" -vf "$filters,palettegen=stats_mode=$stats_mode" -y $palette
-            ffmpeg -v warning -ss $start_time -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "$out_file" && rm "$palette"
+            ffmpeg \
+                -v warning \
+                -ss $start_time \
+                -i "$originalFile" \
+                -vf "$filters,palettegen=stats_mode=$stats_mode" \
+                -y $palette
+
+            ffmpeg \
+                -v warning \
+                -ss $start_time \
+                -i "$originalFile" \
+                -i $palette \
+                -lavfi "$filters [x]; [x][1:v] paletteuse" \
+                -y "$out_file"
+
         elif [[ $start_time > 0 && $duration > 0 ]]
         then
-            ffmpeg -v warning -ss $start_time -t $duration -i "$originalFile" -vf "$filters,palettegen=stats_mode=$stats_mode" -y $palette
-            ffmpeg -v warning -ss $start_time -t $duration -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "$out_file" && rm "$palette"
+            ffmpeg \
+                -v warning \
+                -ss $start_time \
+                -t $duration \
+                -i "$originalFile" \
+                -vf "$filters,palettegen=stats_mode=$stats_mode" \
+                -y $palette
+
+            ffmpeg \
+                -v warning \
+                -ss $start_time \
+                -t $duration \
+                -i "$originalFile" \
+                -i $palette \
+                -lavfi "$filters [x]; [x][1:v] paletteuse" \
+                -y "$out_file"
         fi
+
+        clean_up
     fi
+
 fi
 
 

@@ -3,15 +3,6 @@
 ### Based on this https://blog.pkh.me/p/21-high-quality-gif-with-ffmpeg.html
 
 
-trap clean_up 1 2 3 15
-trap die 1 2 3 15
-
-# --- Make sure script dies - this is overkill
-die()
-{
-    exit 111
-}
-
 printHelp()
 {
 echo -e """—————————————————————————
@@ -61,10 +52,21 @@ Available argument flags:
 
 --scale|-scale|-s|-sz|-sc|-size
     Set size of output gif
-    example: -s 520
+    default is 320px
 
 --start-time|-st|-ss
     Set start time of videoclip to make gif from
+
+--loops|-loops|-loop
+    Set the amout of loops for the gif.
+
+    default is infinite (0)
+
+    -1 no loop (plays once)
+    0 infinite loop (default)
+    1 loop once (plays 2 times)
+    2 loop twice (plays 3 times)
+    etc
 
 --duration|-d|-t
     Set duration of clip
@@ -75,7 +77,6 @@ Available argument flags:
 """
 
 }
-
 
 
 # --- Check if there are any arguments
@@ -92,10 +93,12 @@ else
     start_time=0
     duration=0
     fps=10
-    scale=540
+    scale=320
+    loops=0
     scale_flags="lanczos"
     stats_mode=diff
     # stats_mode=full
+
     new_folder=""
 
     # --- Check if there are more arguments than just original file
@@ -122,6 +125,11 @@ else
             --scale|-scale|-sc|-size)
                 shift
                 scale="$1"
+
+            ;;
+            --loops|-loops|-loop)
+                shift
+                loops=$1
 
             ;;
             --scale-flag|-scf)
@@ -187,27 +195,37 @@ else
         folder="${folder}"
     fi
 
-
-    # --- Function to create the temporary palette
-
-    make_temp_palette()
-    {
-        TEMP=$(mktemp -t $name-$$.XXXXXXXXXX.png)
-    }
-
-    # --- Function to delete the temporary palette
-
-    clean_up()
-    {
-        # [[ -f $TEMP ]] && echo "TEMP EXISTS" || echo "TEMP DOES NOT EXIST"
-        rm "$TEMP" >/dev/null 2>&1
-        # [[ -f $TEMP ]] && echo "TEMP EXISTS" || echo "TEMP DOES NOT EXIST"
-    }
-
     if [[ -w "${folder}" ]]
     then
-
         cd "$folder"
+
+        trap clean_up 1 2 3 15
+        trap die 1 2 3 15
+
+        # --- Make sure script dies - this is overkill
+
+        die()
+        {
+            exit 111
+        }
+
+        # --- Function to create the temporary palette
+
+        make_temp_palette()
+        {
+            TEMP=$(mktemp -t $name-$$.XXXXXXXXXX.png)
+        }
+
+
+        # --- Function to delete the temporary palette
+
+        clean_up()
+        {
+            # [[ -f $TEMP ]] && echo "TEMP EXISTS" || echo "TEMP DOES NOT EXIST"
+            rm "$TEMP" >/dev/null 2>&1
+            # [[ -f $TEMP ]] && echo "TEMP EXISTS" || echo "TEMP DOES NOT EXIST"
+        }
+
         make_temp_palette
         palette="$TEMP"
         filters="fps=$fps,scale=$scale:-1:flags=$scale_flags"
@@ -240,6 +258,7 @@ else
                 -i "$originalFile" \
                 -i $palette \
                 -lavfi "$filters [x]; [x][1:v] paletteuse" \
+                -loop $loops \
                 -y "$out_file"
 
         elif [[ $start_time > 0 && $duration = 0 ]]
@@ -257,6 +276,7 @@ else
                 -i "$originalFile" \
                 -i $palette \
                 -lavfi "$filters [x]; [x][1:v] paletteuse" \
+                -loop $loops \
                 -y "$out_file"
 
         elif [[ $start_time > 0 && $duration > 0 ]]
@@ -276,8 +296,10 @@ else
                 -i "$originalFile" \
                 -i $palette \
                 -lavfi "$filters [x]; [x][1:v] paletteuse" \
+                -loop $loops \
                 -y "$out_file"
         fi
+
         clean_up
     fi
 fi

@@ -83,8 +83,6 @@ then
     done
 fi
 
-filters="fps=$fps,scale=$scale:-1:flags=lanczos"
-
 if [[ $runit = 1 ]]
 then
     folder="${originalFile%.*}"
@@ -96,6 +94,7 @@ then
     then
         cd "$folder"
         palette="${folder}/palette.png"
+        filters="fps=$fps,scale=$scale:-1:flags=lanczos"
 
         echo -e "\nFolder:\n$PWD\n\nNew GIF:\n${folder}/${name}.gif\n"
 

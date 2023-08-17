@@ -94,10 +94,11 @@ then
     fi
     if [[ -d "${folder}" ]]
     then
-
         cd "$folder"
-        echo -e "\nFolder:\n$PWD\n\nNew GIF:\n${folder}/${name}.gif\n"
         palette="${folder}/palette.png"
+
+        echo -e "\nFolder:\n$PWD\n\nNew GIF:\n${folder}/${name}.gif\n"
+
         if [[ $start_time = 0 && $duration = 0 ]]
         then
             ffmpeg -v warning -i "$originalFile" -vf "$filters,palettegen=stats_mode=$stats_mode" -y $palette

@@ -28,6 +28,8 @@ then
     name="${name%.*}"
 fi
 
+
+new_folder=""
 # --- Check if there are more arguments than just original file
 
 if [[ ${#@} > 1 ]]
@@ -77,15 +79,34 @@ then
                 ;;
                 esac
             ;;
+            --folder|-dir)
+                shift
+                case "$1" in
+                PWD|pwd)
+                    new_folder="$PWD"
+                ;;
+                *)
+                    new_folder="$1"
+                ;;
+                esac
+            ;;
             esac
         fi
         shift
     done
 fi
 
+if [[ $new_folder != "" ]]
+then
+    folder="$new_folder/$name"
+else
+    folder="${originalFile%.*}"
+    folder="${folder%/*}/$name"
+fi
+
+
 if [[ $runit = 1 ]]
 then
-    folder="${originalFile%.*}"
     if [[ -w "${folder%/*}" ]]
     then
         mkdir "$folder" &>/dev/null
@@ -101,15 +122,15 @@ then
         if [[ $start_time = 0 && $duration = 0 ]]
         then
             ffmpeg -v warning -i "$originalFile" -vf "$filters,palettegen=stats_mode=$stats_mode" -y $palette
-            ffmpeg -v warning -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "${folder}/${name}.gif"
+            ffmpeg -v warning -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "${folder}/${name}.gif" && rm "$palette"
         elif [[ $start_time > 0 && $duration = 0 ]]
         then
             ffmpeg -v warning -ss $start_time -i "$originalFile" -vf "$filters,palettegen=stats_mode=$stats_mode" -y $palette
-            ffmpeg -v warning -ss $start_time -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "${folder}/${name}.gif"
+            ffmpeg -v warning -ss $start_time -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "${folder}/${name}.gif" && rm "$palette"
         elif [[ $start_time > 0 && $duration > 0 ]]
         then
             ffmpeg -v warning -ss $start_time -t $duration -i "$originalFile" -vf "$filters,palettegen=stats_mode=$stats_mode" -y $palette
-            ffmpeg -v warning -ss $start_time -t $duration -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "${folder}/${name}.gif"
+            ffmpeg -v warning -ss $start_time -t $duration -i "$originalFile" -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y "${folder}/${name}.gif" && rm "$palette"
         fi
     fi
 fi

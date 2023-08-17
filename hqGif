@@ -181,7 +181,6 @@ else
         shift
     done
 
-
     if [[ $new_folder != "" ]]
     then
         folder="$new_folder"
@@ -195,7 +194,6 @@ else
     make_temp_palette(){
         TEMP=$(mktemp -t $name-$$.XXXXXXXXXX.png)
     }
-
 
     # --- Function to delete the temporary palette
 
@@ -225,7 +223,6 @@ else
             done
             out_file="$out_new"
         fi
-
 
         echo -e "\nFolder:\n$PWD\n\nNew GIF:\n$out_file\n"
 
@@ -280,7 +277,6 @@ else
                 -lavfi "$filters [x]; [x][1:v] paletteuse" \
                 -y "$out_file"
         fi
-
         clean_up
     fi
 fi

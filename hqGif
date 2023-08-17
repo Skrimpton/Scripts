@@ -15,12 +15,17 @@ Result:
 
   ~/Pictures/lol.gif
 
---------------------
+
+------------
+Explanation
+------------
 
 -name
 
-  Sets output filename from original filename to given string (e.g. "lol")
-  .gif is appended automatically
+  Sets output filename from original filename
+  to given string (e.g. "lol")
+
+  \".gif\" is appended automatically
 
 -dir
 
@@ -32,7 +37,7 @@ Result:
 
 -scf bicubic
 
-  Use bicubic scaling (lanczos by default)
+  Use bicubic scaling (lancoz by default)
 
 
 —————————————————————————
@@ -40,24 +45,66 @@ Available argument flags:
 —————————————————————————
 
 --folder|-dir
+
     Set output directory
 
---name|-name|-n|-o
-    Set name of output gif
-    .gif is appendeda automatically
 
---scale_flag|-scf
-    String to set scale flag
-    e.g bicub or lanczos
+--name|-name|-n|-o
+
+    Set name of output gif
+
+    \".gif\" is appended automatically
+
 
 --scale|-scale|-s|-sz|-sc|-size
+
     Set size of output gif
     default is 320px
 
+    ---------------
+    IMPORTANT NOTE:
+    ---------------
+
+    This script is currently locked to keeping aspect ratio.
+
+    DO NOT USE xxx:xxx
+
+
+--scale_flag|-scf
+
+    https://trac.ffmpeg.org/wiki/Scaling
+
+    String to set scale flag
+    e.g bicub or lancoz
+
+    Has effect on filesize and image quality
+
+    Available flags:
+
+    lanczos (default)
+      - The default width (alpha) is 3.
+        This can be changed by adding \":param0=\"
+        and the desired number.
+
+    area
+    bicubic
+    bicublin
+    bilinear
+    experimental
+    fast_bilinear
+    gauss
+    neighbor
+    sinc
+    spline
+
+
 --start-time|-st|-ss
+
     Set start time of videoclip to make gif from
 
+
 --loops|-loops|-loop
+
     Set the amout of loops for the gif.
 
     default is infinite (0)
@@ -68,10 +115,14 @@ Available argument flags:
     2 loop twice (plays 3 times)
     etc
 
+
 --duration|-d|-t
+
     Set duration of clip
 
+
 --frames-per-second|-fps|--fps
+
     Set gif fps - higher is smoother, but filesize is larger
     default is 10 fps
 """
@@ -215,6 +266,7 @@ else
         {
             TEMP=$(mktemp -t $name-$$.XXXXXXXXXX.png)
         }
+
 
         # --- Function to delete the temporary palette
 

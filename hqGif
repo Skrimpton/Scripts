@@ -134,7 +134,8 @@ Available argument flags:
 
 if [[ -z $@ ]]
 then
-    echo "no arguments"
+    printHelp
+    exit 0
 
 else
     originalFile="$1"
